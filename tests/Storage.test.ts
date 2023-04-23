@@ -13,7 +13,7 @@ describe(Storage, (): void => {
 
     const storage = new Storage({ engine: mockEngine })
 
-    const token = await storage.store(Buffer.from('Hola'))
+    const token = await storage.store({ data: Buffer.from('Hola') })
     storage.initialize()
     storage.retrieve(token)
     storage.retrieveUri(token)
@@ -22,7 +22,7 @@ describe(Storage, (): void => {
     expect(token).toEqual(expect.any(String))
 
     expect(mockEngine.initialize).toHaveBeenCalled()
-    expect(mockEngine.store).toHaveBeenCalledWith(token, Buffer.from('Hola'))
+    expect(mockEngine.store).toHaveBeenCalledWith(token, { data: Buffer.from('Hola') }, undefined)
     expect(mockEngine.retrieve).toHaveBeenCalledWith(token)
     expect(mockEngine.retrieveUri).toHaveBeenCalledWith(token)
     expect(mockEngine.release).toHaveBeenCalled()
@@ -34,7 +34,7 @@ describe(Storage, (): void => {
     expect(storage).toMatchObject({ engine: expect.any(LocalEngine) })
 
     const subject = Buffer.from('Hola')
-    const token = await storage.store(subject)
+    const token = await storage.store({ data: subject })
 
     expect(await storage.retrieve(token)).toEqual(subject)
     expect(await storage.retrieveUri(token)).toMatch(new RegExp(`.*${token.substring(4)}`))

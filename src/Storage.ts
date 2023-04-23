@@ -1,7 +1,7 @@
 import { resolveAdapter } from '@universal-packages/adapter-resolver'
 import { generateToken } from '@universal-packages/crypto-utils'
 import LocalEngine from './LocalEngine'
-import { EngineInterface, EngineInterfaceClass, StorageOptions } from './Storage.types'
+import { BlobDescriptor, EngineInterface, EngineInterfaceClass, StorageOptions } from './Storage.types'
 
 export default class Storage {
   public readonly options: StorageOptions
@@ -20,10 +20,10 @@ export default class Storage {
     if (this.engine.release) await this.engine.release()
   }
 
-  public async store(data: Buffer, md5?: string): Promise<string> {
-    const token = generateToken({ seed: md5, format: 'base64url' })
+  public async store<O = Record<string, any>>(descriptor: BlobDescriptor, engineOptions?: O): Promise<string> {
+    const token = generateToken({ seed: descriptor.md5, format: 'base64url' })
 
-    await this.engine.store(token, data)
+    await this.engine.store(token, descriptor, engineOptions)
 
     return token
   }

@@ -1,7 +1,7 @@
 import { checkFile, ensureDirectory } from '@universal-packages/fs-utils'
 import fs from 'fs'
 import { LocalEngineOptions } from './LocalEngine.types'
-import { EngineInterface } from './Storage.types'
+import { BlobDescriptor, EngineInterface } from './Storage.types'
 
 export default class LocalEngine implements EngineInterface {
   public readonly options: LocalEngineOptions
@@ -10,9 +10,9 @@ export default class LocalEngine implements EngineInterface {
     this.options = { location: './storage', ...options }
   }
 
-  public store(token: string, data: Buffer): void {
+  public store<O = Record<string, any>>(token: string, descriptor: BlobDescriptor, options?: O): void {
     ensureDirectory(this.getDirectoryPath(token))
-    fs.writeFileSync(this.getFilePath(token), data)
+    fs.writeFileSync(this.getFilePath(token), descriptor.data)
   }
 
   public retrieve(token: string): Buffer {

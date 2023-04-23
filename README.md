@@ -41,9 +41,16 @@ console.log(myData)
 
 ### Instance methods
 
-#### **`store(data: Buffer, md5?: String)`**
+#### **`store(descriptor: BlobDescriptor, engineOptions?: Object)`**
 
-Stores a blob under a newly generated token and returns that new token, the md5 can optionally be passed help generate the token.
+- **`descriptor`** `BlobDescriptor`
+  - **`data`** `Buffer`
+  - **`filename`** `String`
+  - **`mimetype`** `String`
+  - **`md5`** `String`
+  - **`size`** `Number`
+
+Stores a blob under a newly generated token and returns that new token, engine options can optionally be passed in case the engine needs configuration per blob.
 
 #### **`initialize()`** **`async`**
 
