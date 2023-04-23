@@ -27,6 +27,14 @@ export default class LocalEngine implements EngineInterface {
     return fs.readFileSync(filePath)
   }
 
+  public retrieveUri(token: string): string {
+    try {
+      return checkFile(this.getFilePath(token))
+    } catch {
+      return undefined
+    }
+  }
+
   public dispose(token: string): void {
     let filePath = this.getFilePath(token)
 

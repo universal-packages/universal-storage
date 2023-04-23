@@ -21,7 +21,7 @@ export default class Storage {
   }
 
   public async store(data: Buffer, md5?: string): Promise<string> {
-    const token = generateToken({ seed: md5, format: 'base64url'})
+    const token = generateToken({ seed: md5, format: 'base64url' })
 
     await this.engine.store(token, data)
 
@@ -29,7 +29,11 @@ export default class Storage {
   }
 
   public async retrieve(token: string): Promise<Buffer> {
-    return this.engine.retrieve(token)
+    return await this.engine.retrieve(token)
+  }
+
+  public async retrieveUri(token: string): Promise<string> {
+    return await this.engine.retrieveUri(token)
   }
 
   public async dispose(token: string): Promise<void> {

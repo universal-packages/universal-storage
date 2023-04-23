@@ -7,6 +7,7 @@ describe(Storage, (): void => {
       release: jest.fn(),
       store: jest.fn(),
       retrieve: jest.fn(),
+      retrieveUri: jest.fn(),
       dispose: jest.fn()
     }
 
@@ -15,6 +16,7 @@ describe(Storage, (): void => {
     const token = await storage.store(Buffer.from('Hola'))
     storage.initialize()
     storage.retrieve(token)
+    storage.retrieveUri(token)
     storage.release()
 
     expect(token).toEqual(expect.any(String))
@@ -22,6 +24,7 @@ describe(Storage, (): void => {
     expect(mockEngine.initialize).toHaveBeenCalled()
     expect(mockEngine.store).toHaveBeenCalledWith(token, Buffer.from('Hola'))
     expect(mockEngine.retrieve).toHaveBeenCalledWith(token)
+    expect(mockEngine.retrieveUri).toHaveBeenCalledWith(token)
     expect(mockEngine.release).toHaveBeenCalled()
   })
 
@@ -34,6 +37,7 @@ describe(Storage, (): void => {
     const token = await storage.store(subject)
 
     expect(await storage.retrieve(token)).toEqual(subject)
+    expect(await storage.retrieveUri(token)).toMatch(new RegExp(`.*${token.substring(4)}`))
 
     await storage.dispose(token)
 

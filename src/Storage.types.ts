@@ -8,6 +8,7 @@ export interface EngineInterface {
   release?: () => void | Promise<void>
   store: (token: string, data: Buffer) => void | Promise<void>
   retrieve: (token: string) => Buffer | Promise<Buffer>
+  retrieveUri: (token: string) => string | Promise<string>
   dispose: (token: string) => void | Promise<void>
 }
 
