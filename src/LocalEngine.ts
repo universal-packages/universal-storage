@@ -7,7 +7,7 @@ export default class LocalEngine implements EngineInterface {
   public readonly options: LocalEngineOptions
 
   public constructor(options?: LocalEngineOptions) {
-    this.options = { storePath: './storage', ...options }
+    this.options = { location: './storage', ...options }
   }
 
   public store(token: string, data: Buffer): void {
@@ -50,7 +50,7 @@ export default class LocalEngine implements EngineInterface {
   private getDirectoryPath(token: string): string {
     const firstTwoChars = token.substring(0, 2)
     const nextTwoChars = token.substring(2, 4)
-    return `${this.options.storePath}/${firstTwoChars}/${nextTwoChars}`
+    return `${this.options.location}/${firstTwoChars}/${nextTwoChars}`
   }
 
   private getFilePath(token: string): string {

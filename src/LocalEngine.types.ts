@@ -1,3 +1,3 @@
 export interface LocalEngineOptions {
-  storePath?: string
+  location?: string
 }
