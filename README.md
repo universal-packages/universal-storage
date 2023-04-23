@@ -21,7 +21,7 @@ import { Storage } from '@universal-packages/storage'
 
 const storage = new Storage()
 
-const token = await storage.storage(new Buffer('example'))
+const token = await storage.storage({ data: new Buffer('example') })
 
 const myBlob = await storage.retrieve(token)
 
