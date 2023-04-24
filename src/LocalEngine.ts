@@ -16,15 +16,7 @@ export default class LocalEngine implements EngineInterface {
   }
 
   public retrieve(token: string): Buffer {
-    let filePath = this.getFilePath(token)
-
-    try {
-      filePath = checkFile(filePath)
-    } catch {
-      return undefined
-    }
-
-    return fs.readFileSync(filePath)
+    return fs.readFileSync(this.getFilePath(token))
   }
 
   public retrieveUri(token: string): string {
@@ -33,6 +25,10 @@ export default class LocalEngine implements EngineInterface {
     } catch {
       return undefined
     }
+  }
+
+  public retrieveStream<S = any>(token: string): S {
+    return fs.createReadStream(this.getFilePath(token)) as any
   }
 
   public dispose(token: string): void {
@@ -54,7 +50,7 @@ export default class LocalEngine implements EngineInterface {
   }
 
   private getFilePath(token: string): string {
-    const fileName = token.substring(4)
-    return `${this.getDirectoryPath(token)}/${fileName}`
+    const filename = token.substring(4)
+    return `${this.getDirectoryPath(token)}/${filename}`
   }
 }

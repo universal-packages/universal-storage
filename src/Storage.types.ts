@@ -8,7 +8,8 @@ export interface EngineInterface {
   release?: () => void | Promise<void>
   store: <O = Record<string, any>>(token: string, descriptor: BlobDescriptor, engineOptions?: O) => void | Promise<void>
   retrieve: (token: string) => Buffer | Promise<Buffer>
-  retrieveUri: (token: string) => string | Promise<string>
+  retrieveStream: <S = any>(token: string) => S | Promise<S>
+  retrieveUri: (token: string) => string
   dispose: (token: string) => void | Promise<void>
 }
 

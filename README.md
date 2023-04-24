@@ -64,6 +64,10 @@ Releases the engine resources in case they need to be disposed before finishing 
 
 Returns the blob stored under the provided token.
 
+#### **`retrieveStream(token: String)`**
+
+Returns a stream of the blob stored under the provided token.
+
 #### **`retrieveUri(token: String)`**
 
 Returns the uri of the blob stored under the provided token without retrieving the blob.

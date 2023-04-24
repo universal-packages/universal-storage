@@ -1,5 +1,6 @@
 import { resolveAdapter } from '@universal-packages/adapter-resolver'
 import { generateToken } from '@universal-packages/crypto-utils'
+import { Stream } from 'stream'
 import LocalEngine from './LocalEngine'
 import { BlobDescriptor, EngineInterface, EngineInterfaceClass, StorageOptions } from './Storage.types'
 
@@ -32,8 +33,12 @@ export default class Storage {
     return await this.engine.retrieve(token)
   }
 
-  public async retrieveUri(token: string): Promise<string> {
-    return await this.engine.retrieveUri(token)
+  public async retrieveStream<S = any>(token: string): Promise<S> {
+    return await this.engine.retrieveStream(token)
+  }
+
+  public retrieveUri(token: string): string {
+    return this.engine.retrieveUri(token)
   }
 
   public async dispose(token: string): Promise<void> {
