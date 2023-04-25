@@ -2,7 +2,7 @@
 
 [![npm version](https://badge.fury.io/js/@universal-packages%2Fstorage.svg)](https://www.npmjs.com/package/@universal-packages/storage)
 [![Testing](https://github.com/universal-packages/universal-storage/actions/workflows/testing.yml/badge.svg)](https://github.com/universal-packages/universal-storage/actions/workflows/testing.yml)
-[![codecov](https://codecov.io/gh/universal-packages/universal-storage/branch/main/graph/badge.svg?token=CXPJSN8IGL)](https://codecov.io/gh/universal-packages/universal-storage)
+[![codecov](https://codecov.io/gh/universal-packages/universal-storage/branch/main/graph/badge.svg?key=CXPJSN8IGL)](https://codecov.io/gh/universal-packages/universal-storage)
 
 Simple storage organizer.
 
@@ -14,16 +14,16 @@ npm install @universal-packages/storage
 
 ## Storage
 
-`Storage` is the main class interface to start storing blobs of data under a token.
+`Storage` is the main class interface to start storing blobs of data under a key.
 
 ```js
 import { Storage } from '@universal-packages/storage'
 
 const storage = new Storage()
 
-const token = await storage.storage({ data: new Buffer('example') })
+const key = await storage.storage({ data: new Buffer('example') })
 
-const myBlob = await storage.retrieve(token)
+const myBlob = await storage.retrieve(key)
 
 console.log(myData)
 
@@ -50,7 +50,7 @@ console.log(myData)
   - **`md5`** `String`
   - **`size`** `Number`
 
-Stores a blob under a newly generated token and returns that new token, engine options can optionally be passed in case the engine needs configuration per blob.
+Stores a blob under a newly generated key and returns that new key, engine options can optionally be passed in case the engine needs configuration per blob.
 
 #### **`initialize()`** **`async`**
 
@@ -60,21 +60,37 @@ Initialize the internal engine in case it needs preparation.
 
 Releases the engine resources in case they need to be disposed before finishing the process.
 
-#### **`retrieve(token: String)`**
+#### **`retrieve(key: String)`**
 
-Returns the blob stored under the provided token.
+Returns the blob stored under the provided key.
 
-#### **`retrieveStream(token: String)`**
+#### **`retrieveStream(key: String)`**
 
-Returns a stream of the blob stored under the provided token.
+Returns a stream of the blob stored under the provided key.
 
-#### **`retrieveUri(token: String)`**
+#### **`retrieveUri(key: String, engineOptions?: Object)`**
 
-Returns the uri of the blob stored under the provided token without retrieving the blob.
+Returns the uri of the blob stored under the provided key without retrieving the blob, engine options can optionally be passed in case the engine can generate a special uri.
 
-#### **`dispose(token: String)`**
+#### **`dispose(key: String)`**
 
-Removes the blob stored under the provided token so it's no longer retrievable.
+Removes the blob stored under the provided key so it's no longer retrievable.
+
+### Events
+
+`Storage` will emit events regarding blob tasks
+
+```js
+storage.on('*', ({ event, key, engine, descriptor }) => console.log(event, key, engine, descriptor))
+storage.on('store:start', ({ key, engine, descriptor }) => console.log(key, engine, descriptor))
+storage.on('store:finish', ({ key, engine, descriptor }) => console.log(key, engine, descriptor))
+storage.on('retrieve:start', ({ key, engine }) => console.log(key, engine))
+storage.on('retrieve:finish', ({ key, engine }) => console.log(key, engine))
+storage.on('retrieve-stream:start', ({ key, engine }) => console.log(key, engine))
+storage.on('retrieve-stream:finish', ({ key, engine }) => console.log(key, engine))
+storage.on('retrieve-uri:start', ({ key, engine }) => console.log(key, engine))
+storage.on('retrieve-uri:finish', ({ key, engine }) => console.log(key, engine))
+```
 
 ## Engine
 
@@ -100,16 +116,16 @@ export default class MyEngine implements EngineInterface {
     // Release any resources or close any connection
   }
 
-  store(token, data) {
-    // Store the blob using the token as key
+  store(key, data) {
+    // Store the blob using the key as key
   }
 
-  retrieve(token) {
-    return // retrieve the subject from your engine using the token
+  retrieve(key) {
+    return // retrieve the subject from your engine using the key
   }
 
-  dispose(token) {
-    // dispose the blob from your engine using the token
+  dispose(key) {
+    // dispose the blob from your engine using the key
   }
 }
 ```
