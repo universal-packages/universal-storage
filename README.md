@@ -41,17 +41,6 @@ console.log(myData)
 
 ### Instance methods
 
-#### **`store(descriptor: BlobDescriptor, engineOptions?: Object)`**
-
-- **`descriptor`** `BlobDescriptor`
-  - **`data`** `Buffer`
-  - **`filename`** `String`
-  - **`mimetype`** `String`
-  - **`md5`** `String`
-  - **`size`** `Number`
-
-Stores a blob under a newly generated key and returns that new key, engine options can optionally be passed in case the engine needs configuration per blob.
-
 #### **`initialize()`** **`async`**
 
 Initialize the internal engine in case it needs preparation.
@@ -60,21 +49,119 @@ Initialize the internal engine in case it needs preparation.
 
 Releases the engine resources in case they need to be disposed before finishing the process.
 
+#### **`generateKey(md5?: string)`**
+
+Generates a new key using the provided md5 or a random one if not provided.
+
+#### **`generateVersionKey(key: string, descriptor: Object)`**
+
+- **`descriptor`** `VersionBlobDescriptor`
+  - **`name`** `String`
+  - **`mimetype`** `String`
+  - **`width`** `Number`
+  - **`height`** `Number`
+  - **`fit`** `contain | cover | fill | inside | outside`
+
+Generates the version key of a key using the provided descriptor.
+
+#### **`parseVersionSlug(slug: string)`**
+
+Gets the version descriptor from a version slug.
+
+#### **`serializeVersionBlobDescriptor(descriptor: Object)`**
+
+- **`descriptor`** `VersionBlobDescriptor`
+  - **`name`** `String`
+  - **`mimetype`** `String`
+  - **`width`** `Number`
+  - **`height`** `Number`
+  - **`fit`** `contain | cover | fill | inside | outside`
+
+Serializes a version blob descriptor into a version slug.
+
+#### **`store(descriptor: Object, engineOptions?: Object)`**
+
+#### **`store(key: string, descriptor: Object, engineOptions?: Object)`**
+
+- **`descriptor`** `BlobDescriptor`
+  - **`data`** `Buffer`
+  - **`name`** `String`
+  - **`mimetype`** `String`
+  - **`md5`** `String`
+  - **`size`** `Number`
+
+Stores a blob under a newly generated key or by using a provided one, engine options can optionally be passed in case the engine needs configuration per blob.
+
+#### **`storeVersion(key: string, descriptor: Object, engineOptions?: Object)`**
+
+- **`descriptor`** `VersionBlobDescriptor`
+  - **`name`** `String`
+  - **`mimetype`** `String`
+  - **`width`** `Number`
+  - **`height`** `Number`
+  - **`fit`** `contain | cover | fill | inside | outside`
+
+Stores a new version of a, image blob by using a provided key, engine options can optionally be passed in case the engine needs configuration per blob.
+
 #### **`retrieve(key: String)`**
 
 Returns the blob stored under the provided key.
+
+#### **`retrieveVersion(key: string, descriptor: Object, engineOptions?: Object)`**
+
+- **`descriptor`** `VersionBlobDescriptor`
+  - **`name`** `String`
+  - **`mimetype`** `String`
+  - **`width`** `Number`
+  - **`height`** `Number`
+  - **`fit`** `contain | cover | fill | inside | outside`
+
+Retrieves a version blob if the version was stored previously for the given key and descriptor.
 
 #### **`retrieveStream(key: String)`**
 
 Returns a stream of the blob stored under the provided key.
 
+#### **`retrieveVersionStream(key: string, descriptor: Object, engineOptions?: Object)`**
+
+- **`descriptor`** `VersionBlobDescriptor`
+  - **`name`** `String`
+  - **`mimetype`** `String`
+  - **`width`** `Number`
+  - **`height`** `Number`
+  - **`fit`** `contain | cover | fill | inside | outside`
+
+Retrieves a version stream if the version was stored previously for the given key and descriptor.
+
 #### **`retrieveUri(key: String, engineOptions?: Object)`**
 
 Returns the uri of the blob stored under the provided key without retrieving the blob, engine options can optionally be passed in case the engine can generate a special uri.
 
+#### **`retrieveVersionUri(key: string, descriptor: Object, engineOptions?: Object)`**
+
+- **`descriptor`** `VersionBlobDescriptor`
+  - **`name`** `String`
+  - **`mimetype`** `String`
+  - **`width`** `Number`
+  - **`height`** `Number`
+  - **`fit`** `contain | cover | fill | inside | outside`
+
+Returns the uri of the version blob stored under the provided key and descriptor, without retrieving the blob, engine options can optionally be passed in case the engine can generate a special uri.
+
 #### **`dispose(key: String)`**
 
 Removes the blob stored under the provided key so it's no longer retrievable.
+
+#### **`disposeVersion(key: string, descriptor: Object)`**
+
+- **`descriptor`** `VersionBlobDescriptor`
+  - **`name`** `String`
+  - **`mimetype`** `String`
+  - **`width`** `Number`
+  - **`height`** `Number`
+  - **`fit`** `contain | cover | fill | inside | outside`
+
+Removes the version blob stored under the provided key and descriptor so it's no longer retrievable.
 
 ### Events
 
@@ -84,12 +171,24 @@ Removes the blob stored under the provided key so it's no longer retrievable.
 storage.on('*', ({ event, key, engine, descriptor }) => console.log(event, key, engine, descriptor))
 storage.on('store:start', ({ key, engine, descriptor }) => console.log(key, engine, descriptor))
 storage.on('store:finish', ({ key, engine, descriptor }) => console.log(key, engine, descriptor))
+storage.on('store-version:start', ({ key, engine, descriptor }) => console.log(key, engine, descriptor))
+storage.on('store-version:finish', ({ key, engine, descriptor }) => console.log(key, engine, descriptor))
 storage.on('retrieve:start', ({ key, engine }) => console.log(key, engine))
 storage.on('retrieve:finish', ({ key, engine }) => console.log(key, engine))
+storage.on('retrieve-version:start', ({ key, engine, descriptor }) => console.log(key, engine, descriptor))
+storage.on('retrieve-version:finish', ({ key, engine, descriptor }) => console.log(key, engine, descriptor))
 storage.on('retrieve-stream:start', ({ key, engine }) => console.log(key, engine))
 storage.on('retrieve-stream:finish', ({ key, engine }) => console.log(key, engine))
+storage.on('retrieve-version-stream:start', ({ key, engine, descriptor }) => console.log(key, engine, descriptor))
+storage.on('retrieve-version-stream:finish', ({ key, engine, descriptor }) => console.log(key, engine, descriptor))
 storage.on('retrieve-uri:start', ({ key, engine }) => console.log(key, engine))
 storage.on('retrieve-uri:finish', ({ key, engine }) => console.log(key, engine))
+storage.on('retrieve-version-uri:start', ({ key, engine, descriptor }) => console.log(key, engine, descriptor))
+storage.on('retrieve-version-uri:finish', ({ key, engine, descriptor }) => console.log(key, engine, descriptor))
+storage.on('dispose:start', ({ key, engine }) => console.log(key, engine))
+storage.on('dispose:finish', ({ key, engine }) => console.log(key, engine))
+storage.on('dispose-version:start', ({ key, engine, descriptor }) => console.log(key, engine, descriptor))
+storage.on('dispose-version:finish', ({ key, engine, descriptor }) => console.log(key, engine, descriptor))
 ```
 
 ## Engine
@@ -127,6 +226,10 @@ export default class MyEngine implements EngineInterface {
   dispose(key) {
     // dispose the blob from your engine using the key
   }
+
+  disposeDirectory(key) {
+    // dispose a directory of blobs (usually the versions directory)
+  }
 }
 ```
 
@@ -154,3 +257,9 @@ The development of this library happens in the open on GitHub, and we are gratef
 ### License
 
 [MIT licensed](./LICENSE).
+
+#### Sharp
+
+This project uses the Sharp library, which is licensed under the Apache License 2.0. Copyright 2013 Lovell Fuller and others.
+
+The source code for the Sharp library can be found at https://github.com/lovell/sharp.
