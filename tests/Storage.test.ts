@@ -83,23 +83,25 @@ describe(Storage, (): void => {
 
     const key = await storage.store({ data: subject })
 
-    await storage.storeVersion(key, { width: 64 })
+    await storage.storeVersion(key, { width: 64, fit: 'cover' })
     await storage.storeVersion(key, { width: 32 })
 
-    const versionUri = await storage.retrieveVersionUri(key, { width: 64 })
+    const versionUri = await storage.retrieveVersionUri(key, { width: 64, fit: 'cover' })
+
+    expect(versionUri).toMatch(/.*\/v-64x~-cover/)
 
     let versionMetadata = await sharp(versionUri).metadata()
 
     expect(versionMetadata.width).toEqual(64)
     expect(versionMetadata.height).toEqual(64)
 
-    const versionBlob = await storage.retrieveVersion(key, { width: 64 })
+    const versionBlob = await storage.retrieveVersion(key, { width: 64, fit: 'cover' })
     versionMetadata = await sharp(versionBlob).metadata()
 
     expect(versionMetadata.width).toEqual(64)
     expect(versionMetadata.height).toEqual(64)
 
-    const versionStream = await storage.retrieveVersionStream(key, { width: 64 })
+    const versionStream = await storage.retrieveVersionStream(key, { width: 64, fit: 'cover' })
     const versionStreamBlob = await new Promise((resolve): void => {
       const chunks: any[] = []
 
@@ -111,12 +113,12 @@ describe(Storage, (): void => {
     expect(versionMetadata.width).toEqual(64)
     expect(versionMetadata.height).toEqual(64)
 
-    await storage.disposeVersion(key, { width: 64 })
+    await storage.disposeVersion(key, { width: 64, fit: 'cover' })
 
     let error: Error
 
     try {
-      await storage.retrieveVersionUri(key, { width: 64 })
+      await storage.retrieveVersionUri(key, { width: 64, fit: 'cover' })
     } catch (err) {
       error = err
     }

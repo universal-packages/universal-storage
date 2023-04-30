@@ -2,7 +2,7 @@ import { resolveAdapter } from '@universal-packages/adapter-resolver'
 import { generateToken } from '@universal-packages/crypto-utils'
 import { startMeasurement } from '@universal-packages/time-measurer'
 import EventEmitter from 'events'
-import sharp from 'sharp'
+import sharp, { FitEnum } from 'sharp'
 import LocalEngine from './LocalEngine'
 import { BlobDescriptor, EngineInterface, EngineInterfaceClass, StorageOptions, VersionBlobDescriptor } from './Storage.types'
 
@@ -29,11 +29,28 @@ export default class Storage extends EventEmitter {
   }
 
   public generateVersionKey(key: string, descriptor: VersionBlobDescriptor): string {
-    const versionWithKeyPart = descriptor.width ? descriptor.width : '~'
-    const versionHeightKeyPart = descriptor.height ? descriptor.height : '~'
-    const versionFitKeyPart = descriptor.fit ? `-${descriptor.fit}` : ''
+    return `${this.getVersionsKey(key)}/${this.serializeVersionBlobDescriptor(descriptor)}`
+  }
 
-    return `${this.getVersionsKey(key)}/v-${versionWithKeyPart}x${versionHeightKeyPart}${versionFitKeyPart}`
+  public parseVersionSlug(versionSlug: string): VersionBlobDescriptor {
+    const slugParts = versionSlug.split('-')
+    const width = slugParts[1].split('x')[0]
+    const height = slugParts[1].split('x')[1]
+    const fit = slugParts[2]
+
+    return {
+      width: width === '~' ? undefined : parseInt(width, 10),
+      height: height === '~' ? undefined : parseInt(height, 10),
+      fit: fit ? (fit as keyof FitEnum) : undefined
+    }
+  }
+
+  public serializeVersionBlobDescriptor(descriptor: VersionBlobDescriptor): string {
+    const width = descriptor.width ? descriptor.width : '~'
+    const height = descriptor.height ? descriptor.height : '~'
+    const fit = descriptor.fit ? `-${descriptor.fit}` : ''
+
+    return `v-${width}x${height}${fit}`
   }
 
   public async store<O = Record<string, any>>(descriptor: BlobDescriptor, engineOptions?: O): Promise<string>
