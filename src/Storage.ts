@@ -2,8 +2,9 @@ import { resolveAdapter } from '@universal-packages/adapter-resolver'
 import { generateToken } from '@universal-packages/crypto-utils'
 import { startMeasurement } from '@universal-packages/time-measurer'
 import EventEmitter from 'events'
+import sharp from 'sharp'
 import LocalEngine from './LocalEngine'
-import { BlobDescriptor, EngineInterface, EngineInterfaceClass, StorageOptions } from './Storage.types'
+import { BlobDescriptor, EngineInterface, EngineInterfaceClass, StorageOptions, VersionBlobDescriptor } from './Storage.types'
 
 export default class Storage extends EventEmitter {
   public readonly options: StorageOptions
@@ -23,19 +24,51 @@ export default class Storage extends EventEmitter {
     if (this.engine.release) await this.engine.release()
   }
 
-  public async store<O = Record<string, any>>(descriptor: BlobDescriptor, engineOptions?: O): Promise<string> {
+  public generateKey(md5?: string): string {
+    return generateToken({ seed: md5, format: 'base64url' })
+  }
+
+  public generateVersionKey(key: string, descriptor: VersionBlobDescriptor): string {
+    const versionWithKeyPart = descriptor.width ? descriptor.width : '~'
+    const versionHeightKeyPart = descriptor.height ? descriptor.height : '~'
+    const versionFitKeyPart = descriptor.fit ? `-${descriptor.fit}` : ''
+
+    return `${this.getVersionsKey(key)}/v-${versionWithKeyPart}x${versionHeightKeyPart}${versionFitKeyPart}`
+  }
+
+  public async store<O = Record<string, any>>(descriptor: BlobDescriptor, engineOptions?: O): Promise<string>
+  public async store<O = Record<string, any>>(key: string, descriptor: BlobDescriptor, engineOptions?: O): Promise<string>
+  public async store<O = Record<string, any>>(descriptorOrKey: BlobDescriptor | string, engineOptionsOrDescriptor?: O | BlobDescriptor, engineOptions?: O): Promise<string> {
     const measurer = startMeasurement()
-    const key = generateToken({ seed: descriptor.md5, format: 'base64url' })
+    const finalKey = typeof descriptorOrKey === 'string' ? descriptorOrKey : this.generateKey(descriptorOrKey.md5)
+    const finalDescriptor = typeof descriptorOrKey === 'string' ? (engineOptionsOrDescriptor as BlobDescriptor) : descriptorOrKey
+    const finalEngineOptions = typeof descriptorOrKey === 'string' ? engineOptions : (engineOptionsOrDescriptor as O)
 
-    this.emit('store:start', { key, descriptor, engine: this.engine.constructor.name })
-    this.emit('*', { event: 'store:start', key, descriptor, engine: this.engine.constructor.name })
+    this.emit('store:start', { key: finalKey, descriptor: finalDescriptor, engine: this.engine.constructor.name })
+    this.emit('*', { event: 'store:start', key: finalKey, descriptor: finalDescriptor, engine: this.engine.constructor.name })
 
-    await this.engine.store(key, descriptor, engineOptions)
+    await this.engine.store(finalKey, finalDescriptor, finalEngineOptions)
 
-    this.emit('store:finish', { key, descriptor, engine: this.engine.constructor.name, measurement: measurer.finish() })
-    this.emit('*', { event: 'store:finish', key, descriptor, engine: this.engine.constructor.name, measurement: measurer.finish() })
+    this.emit('store:finish', { key: finalKey, descriptor: finalDescriptor, engine: this.engine.constructor.name, measurement: measurer.finish() })
+    this.emit('*', { event: 'store:finish', key: finalKey, descriptor: finalDescriptor, engine: this.engine.constructor.name, measurement: measurer.finish() })
 
-    return key
+    return finalKey
+  }
+
+  public async storeVersion(key: string, descriptor: VersionBlobDescriptor): Promise<void> {
+    const measurer = startMeasurement()
+
+    this.emit('store-version:start', { key, engine: this.engine.constructor.name })
+    this.emit('*', { event: 'store-version:start', key, engine: this.engine.constructor.name })
+
+    const originalBuffer = await this.engine.retrieve(key)
+    const resized = await sharp(originalBuffer).resize(descriptor).toBuffer()
+    const versionKey = this.generateVersionKey(key, descriptor)
+
+    await this.engine.store(versionKey, { data: resized, ...descriptor })
+
+    this.emit('store-version:finish', { key, engine: this.engine.constructor.name, measurement: measurer.finish() })
+    this.emit('*', { event: 'store-version:finish', key, engine: this.engine.constructor.name, measurement: measurer.finish() })
   }
 
   public async retrieve(key: string): Promise<Buffer> {
@@ -52,6 +85,21 @@ export default class Storage extends EventEmitter {
     return buffer
   }
 
+  public async retrieveVersion(key: string, descriptor: VersionBlobDescriptor): Promise<Buffer> {
+    const measurer = startMeasurement()
+
+    this.emit('retrieve-version:start', { key, engine: this.engine.constructor.name })
+    this.emit('*', { event: 'retrieve-version:start', key, engine: this.engine.constructor.name })
+
+    const versionKey = this.generateVersionKey(key, descriptor)
+    const buffer = await this.engine.retrieve(versionKey)
+
+    this.emit('retrieve-version:finish', { key, engine: this.engine.constructor.name, measurement: measurer.finish() })
+    this.emit('*', { event: 'retrieve-version:finish', key, engine: this.engine.constructor.name, measurement: measurer.finish() })
+
+    return buffer
+  }
+
   public async retrieveStream<S = any>(key: string): Promise<S> {
     const measurer = startMeasurement()
 
@@ -59,6 +107,21 @@ export default class Storage extends EventEmitter {
     this.emit('*', { event: 'retrieve-stream:start', key, engine: this.engine.constructor.name })
 
     const stream = await this.engine.retrieveStream(key)
+
+    this.emit('retrieve-stream:finish', { key, engine: this.engine.constructor.name, measurement: measurer.finish() })
+    this.emit('*', { event: 'retrieve-stream:finish', key, engine: this.engine.constructor.name, measurement: measurer.finish() })
+
+    return stream
+  }
+
+  public async retrieveVersionStream<S = any>(key: string, descriptor: VersionBlobDescriptor): Promise<S> {
+    const measurer = startMeasurement()
+
+    this.emit('retrieve-stream:start', { key, engine: this.engine.constructor.name })
+    this.emit('*', { event: 'retrieve-stream:start', key, engine: this.engine.constructor.name })
+
+    const versionKey = this.generateVersionKey(key, descriptor)
+    const stream = await this.engine.retrieveStream(versionKey)
 
     this.emit('retrieve-stream:finish', { key, engine: this.engine.constructor.name, measurement: measurer.finish() })
     this.emit('*', { event: 'retrieve-stream:finish', key, engine: this.engine.constructor.name, measurement: measurer.finish() })
@@ -80,16 +143,51 @@ export default class Storage extends EventEmitter {
     return uri
   }
 
+  public async retrieveVersionUri<O = Record<string, any>>(key: string, descriptor: VersionBlobDescriptor, engineOptions?: O): Promise<string> {
+    const measurer = startMeasurement()
+
+    this.emit('retrieve-version-uri:start', { key, engine: this.engine.constructor.name })
+    this.emit('*', { event: 'retrieve-version-uri:start', key, engine: this.engine.constructor.name })
+
+    const versionKey = this.generateVersionKey(key, descriptor)
+    const uri = await this.engine.retrieveUri(versionKey, engineOptions)
+
+    this.emit('retrieve-version-uri:finish', { key, engine: this.engine.constructor.name, measurement: measurer.finish() })
+    this.emit('*', { event: 'retrieve-version-uri:finish', key, engine: this.engine.constructor.name, measurement: measurer.finish() })
+
+    return uri
+  }
+
   public async dispose(key: string): Promise<void> {
     const measurer = startMeasurement()
 
     this.emit('dispose:start', { key, engine: this.engine.constructor.name })
     this.emit('*', { event: 'dispose:start', key, engine: this.engine.constructor.name })
 
+    const versionsKey = this.getVersionsKey(key)
+
+    await this.engine.disposeDirectory(versionsKey)
     await this.engine.dispose(key)
 
     this.emit('dispose:finish', { key, engine: this.engine.constructor.name, measurement: measurer.finish() })
     this.emit('*', { event: 'dispose:finish', key, engine: this.engine.constructor.name, measurement: measurer.finish() })
+  }
+
+  public async disposeVersion(key: string, descriptor: VersionBlobDescriptor): Promise<void> {
+    const measurer = startMeasurement()
+
+    this.emit('dispose-version:start', { key, engine: this.engine.constructor.name })
+    this.emit('*', { event: 'dispose-version:start', key, engine: this.engine.constructor.name })
+
+    const versionKey = this.generateVersionKey(key, descriptor)
+    await this.engine.dispose(versionKey)
+
+    this.emit('dispose-version:finish', { key, engine: this.engine.constructor.name, measurement: measurer.finish() })
+    this.emit('*', { event: 'dispose-version:finish', key, engine: this.engine.constructor.name, measurement: measurer.finish() })
+  }
+
+  private getVersionsKey(key: string): string {
+    return `${key}-V`
   }
 
   private generateEngine(): EngineInterface {

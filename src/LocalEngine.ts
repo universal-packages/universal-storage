@@ -1,7 +1,8 @@
-import { checkFile, ensureDirectory } from '@universal-packages/fs-utils'
+import { checkFile, ensureDirectory, expandPath } from '@universal-packages/fs-utils'
 import fs from 'fs'
 import { LocalEngineOptions } from './LocalEngine.types'
 import { BlobDescriptor, EngineInterface } from './Storage.types'
+import path from 'path'
 
 export default class LocalEngine implements EngineInterface {
   public readonly options: LocalEngineOptions
@@ -10,47 +11,42 @@ export default class LocalEngine implements EngineInterface {
     this.options = { location: './storage', ...options }
   }
 
-  public store<O = Record<string, any>>(token: string, descriptor: BlobDescriptor, options?: O): void {
-    ensureDirectory(this.getDirectoryPath(token))
-    fs.writeFileSync(this.getFilePath(token), descriptor.data)
+  public store<O = Record<string, any>>(key: string, descriptor: BlobDescriptor, _options?: O): void {
+    ensureDirectory(this.getDirectoryPath(key))
+    fs.writeFileSync(this.getFilePath(key), descriptor.data)
   }
 
-  public retrieve(token: string): Buffer {
-    return fs.readFileSync(this.getFilePath(token))
+  public retrieve(key: string): Buffer {
+    return fs.readFileSync(checkFile(this.getFilePath(key)))
   }
 
-  public retrieveUri(token: string): string {
+  public retrieveUri(key: string): string {
+    return checkFile(this.getFilePath(key))
+  }
+
+  public retrieveStream<S = any>(key: string): S {
+    return fs.createReadStream(this.getFilePath(key)) as any
+  }
+
+  public dispose(key: string): void {
+    fs.unlinkSync(checkFile(this.getFilePath(key)))
+  }
+
+  public disposeDirectory(key: string): void {
     try {
-      return checkFile(this.getFilePath(token))
-    } catch {
-      return undefined
-    }
+      fs.rmSync(this.getFilePath(key), { recursive: true })
+    } catch (e) {}
   }
 
-  public retrieveStream<S = any>(token: string): S {
-    return fs.createReadStream(this.getFilePath(token)) as any
+  private getDirectoryPath(key: string): string {
+    const firstTwoChars = key.substring(0, 2)
+    const nextTwoChars = key.substring(2, 4)
+    const firstSections = key.substring(4).split('/').slice(0, -1).join('/')
+    return expandPath(`${this.options.location}/${firstTwoChars}/${nextTwoChars}/${firstSections}`)
   }
 
-  public dispose(token: string): void {
-    let filePath = this.getFilePath(token)
-
-    try {
-      filePath = checkFile(filePath)
-    } catch {
-      return
-    }
-
-    fs.unlinkSync(filePath)
-  }
-
-  private getDirectoryPath(token: string): string {
-    const firstTwoChars = token.substring(0, 2)
-    const nextTwoChars = token.substring(2, 4)
-    return `${this.options.location}/${firstTwoChars}/${nextTwoChars}`
-  }
-
-  private getFilePath(token: string): string {
-    const filename = token.substring(4)
-    return `${this.getDirectoryPath(token)}/${filename}`
+  private getFilePath(key: string): string {
+    const filename = key.substring(4).split('/').slice(-1)[0]
+    return path.join(this.getDirectoryPath(key), filename)
   }
 }
