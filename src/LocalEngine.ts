@@ -1,8 +1,9 @@
 import { checkFile, ensureDirectory, expandPath } from '@universal-packages/fs-utils'
 import fs from 'fs'
+import path from 'path'
+
 import { LocalEngineOptions } from './LocalEngine.types'
 import { BlobDescriptor, EngineInterface } from './Storage.types'
-import path from 'path'
 
 export default class LocalEngine implements EngineInterface {
   public readonly options: LocalEngineOptions

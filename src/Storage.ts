@@ -3,6 +3,7 @@ import { generateToken } from '@universal-packages/crypto-utils'
 import { startMeasurement } from '@universal-packages/time-measurer'
 import EventEmitter from 'events'
 import sharp, { FitEnum } from 'sharp'
+
 import LocalEngine from './LocalEngine'
 import { BlobDescriptor, EngineInterface, EngineInterfaceClass, StorageOptions, VersionBlobDescriptor } from './Storage.types'
 

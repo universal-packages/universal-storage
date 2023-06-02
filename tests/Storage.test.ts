@@ -1,7 +1,8 @@
 import { Measurement } from '@universal-packages/time-measurer'
 import fs from 'fs'
-import { Storage, LocalEngine, EngineInterface } from '../src'
 import sharp from 'sharp'
+
+import { EngineInterface, LocalEngine, Storage } from '../src'
 
 describe(Storage, (): void => {
   it('calls the set engine right methods', async (): Promise<void> => {
