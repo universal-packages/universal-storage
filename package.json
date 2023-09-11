@@ -18,7 +18,7 @@
     "@universal-packages/adapter-resolver": "^1.2.0",
     "@universal-packages/crypto-utils": "^1.1.1",
     "@universal-packages/fs-utils": "^1.0.1",
-    "@universal-packages/time-measurer": "^1.4.3",
+    "@universal-packages/time-measurer": "^1.4.9",
     "sharp": "^0.32.1"
   },
   "devDependencies": {
