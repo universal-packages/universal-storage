@@ -41,7 +41,7 @@ console.log(myData)
 
 ### Instance methods
 
-#### **`initialize()`** **`async`**
+#### **`prepare()`** **`async`**
 
 Initialize the internal engine in case it needs preparation.
 
@@ -207,7 +207,7 @@ export default class MyEngine implements EngineInterface {
     // Options passed through the adapters sub system
   }
 
-  initialize() {
+  prepare() {
     // Initialize any connection using options
   }
 

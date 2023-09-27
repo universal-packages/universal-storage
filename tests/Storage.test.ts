@@ -7,7 +7,7 @@ import { EngineInterface, LocalEngine, Storage } from '../src'
 describe(Storage, (): void => {
   it('calls the set engine right methods', async (): Promise<void> => {
     const mockEngine: EngineInterface = {
-      initialize: jest.fn(),
+      prepare: jest.fn(),
       release: jest.fn(),
       store: jest.fn(),
       retrieve: jest.fn(),
@@ -23,7 +23,7 @@ describe(Storage, (): void => {
     storage.on('*', listener)
 
     const key = await storage.store({ data: Buffer.from('Hola') })
-    await storage.initialize()
+    await storage.prepare()
     await storage.retrieve(key)
     await storage.retrieveStream(key)
     await storage.retrieveUri(key)
@@ -31,7 +31,7 @@ describe(Storage, (): void => {
 
     expect(key).toEqual(expect.any(String))
 
-    expect(mockEngine.initialize).toHaveBeenCalled()
+    expect(mockEngine.prepare).toHaveBeenCalled()
     expect(mockEngine.store).toHaveBeenCalledWith(key, { data: Buffer.from('Hola') }, undefined)
     expect(mockEngine.retrieve).toHaveBeenCalledWith(key)
     expect(mockEngine.retrieveStream).toHaveBeenCalledWith(key)

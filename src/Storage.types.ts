@@ -7,7 +7,7 @@ export interface StorageOptions {
 }
 
 export interface EngineInterface {
-  initialize?: () => void | Promise<void>
+  prepare?: () => void | Promise<void>
   release?: () => void | Promise<void>
   store: <O = Record<string, any>>(key: string, descriptor: BlobDescriptor, engineOptions?: O) => void | Promise<void>
   retrieve: (key: string) => Buffer | Promise<Buffer>

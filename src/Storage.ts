@@ -17,8 +17,8 @@ export default class Storage extends EventEmitter {
     this.engine = this.generateEngine()
   }
 
-  public async initialize(): Promise<void> {
-    if (this.engine.initialize) await this.engine.initialize()
+  public async prepare(): Promise<void> {
+    if (this.engine.prepare) await this.engine.prepare()
   }
 
   public async release(): Promise<void> {
