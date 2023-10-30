@@ -210,7 +210,8 @@ export default class Storage extends EventEmitter {
 
   private generateEngine(): EngineInterface {
     if (typeof this.options.engine === 'string') {
-      const AdapterModule = resolveAdapter<EngineInterfaceClass>(this.options.engine, {
+      const AdapterModule = resolveAdapter<EngineInterfaceClass>({
+        name: this.options.engine,
         domain: 'storage',
         type: 'engine',
         internal: { local: LocalEngine }
