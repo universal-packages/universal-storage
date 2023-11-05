@@ -217,7 +217,7 @@ export default class Storage extends EventEmitter {
         type: 'engine',
         internal: { local: LocalEngine, test: TestEngine }
       })
-      return new AdapterModule(this.options.engineOptions)
+      return new AdapterModule({ instance: this, ...this.options.engineOptions })
     } else {
       return this.options.engine
     }

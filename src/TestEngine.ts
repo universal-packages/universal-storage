@@ -6,17 +6,27 @@ import { BlobDescriptor, EngineInterface } from './Storage.types'
 interface TestEngineStorage {
   [key: string]: {
     descriptor: BlobDescriptor
+    instance: Storage
     options?: any
   }
 }
 
+interface TestEngineOptions {
+  instance: Storage
+}
 export default class TestEngine implements EngineInterface {
   public static readonly storage: TestEngineStorage = {}
+
+  public readonly instance: Storage
+
+  public constructor(options: TestEngineOptions) {
+    this.instance = options.instance
+  }
 
   public store<O = Record<string, any>>(key: string, descriptor: BlobDescriptor, options?: O): void {
     const finalDescriptor = { ...descriptor }
     if (!descriptor.md5) finalDescriptor.md5 = crypto.createHash('md5').update(descriptor.data).digest('hex')
-    TestEngine.storage[key] = { descriptor: finalDescriptor, options }
+    TestEngine.storage[key] = { descriptor: finalDescriptor, instance: this.instance, options }
   }
 
   public retrieve(key: string): Buffer {

@@ -27,7 +27,8 @@ describe(TestEngine, (): void => {
       descriptor: {
         md5: 'f688ae26e9cfa3ba6235477831d5122e',
         data: subject
-      }
+      },
+      instance: storage
     })
 
     const stream = await storage.retrieveStream<Readable>(key)
