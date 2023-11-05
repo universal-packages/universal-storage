@@ -1,6 +1,7 @@
 import crypto from 'crypto'
 import { Readable } from 'stream'
 
+import Storage from './Storage'
 import { BlobDescriptor, EngineInterface } from './Storage.types'
 
 interface TestEngineStorage {
