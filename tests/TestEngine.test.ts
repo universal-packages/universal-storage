@@ -23,6 +23,12 @@ describe(TestEngine, (): void => {
 
     expect(await storage.retrieve(key)).toEqual(subject)
     expect(await storage.retrieveUri(key)).toMatch(key)
+    expect(TestEngine.storage[key]).toEqual({
+      descriptor: {
+        md5: 'f688ae26e9cfa3ba6235477831d5122e',
+        data: subject
+      }
+    })
 
     const stream = await storage.retrieveStream<Readable>(key)
 

@@ -1,3 +1,4 @@
+import crypto from 'crypto'
 import { Readable } from 'stream'
 
 import { BlobDescriptor, EngineInterface } from './Storage.types'
@@ -13,7 +14,9 @@ export default class TestEngine implements EngineInterface {
   public static readonly storage: TestEngineStorage = {}
 
   public store<O = Record<string, any>>(key: string, descriptor: BlobDescriptor, options?: O): void {
-    TestEngine.storage[key] = { descriptor, options }
+    const finalDescriptor = { ...descriptor }
+    if (!descriptor.md5) finalDescriptor.md5 = crypto.createHash('md5').update(descriptor.data).digest('hex')
+    TestEngine.storage[key] = { descriptor: finalDescriptor, options }
   }
 
   public retrieve(key: string): Buffer {
