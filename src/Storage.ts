@@ -6,6 +6,7 @@ import sharp, { FitEnum } from 'sharp'
 
 import LocalEngine from './LocalEngine'
 import { BlobDescriptor, EngineInterface, EngineInterfaceClass, StorageOptions, VersionBlobDescriptor } from './Storage.types'
+import TestEngine from './TestEngine'
 
 export default class Storage extends EventEmitter {
   public readonly options: StorageOptions
@@ -13,7 +14,7 @@ export default class Storage extends EventEmitter {
 
   public constructor(options?: StorageOptions) {
     super()
-    this.options = { engine: 'local', ...options }
+    this.options = { engine: process.env.NODE_ENV === 'test' ? 'test' : 'local', ...options }
     this.engine = this.generateEngine()
   }
 
@@ -214,7 +215,7 @@ export default class Storage extends EventEmitter {
         name: this.options.engine,
         domain: 'storage',
         type: 'engine',
-        internal: { local: LocalEngine }
+        internal: { local: LocalEngine, test: TestEngine }
       })
       return new AdapterModule(this.options.engineOptions)
     } else {

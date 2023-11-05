@@ -31,6 +31,7 @@ console.log(myData)
 ```
 
 > By default a registry uses a local engine to store blobs, this is suitable for most cases but you can also use a custom engine to store the data in a database or any other storage system.
+> In testing environments the registry will use a memory engine to store blobs.
 
 ### Options
 
