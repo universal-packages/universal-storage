@@ -38,7 +38,13 @@ describe(TestEngine, (): void => {
     await storage.dispose(key)
 
     expect(TestEngine.storage[key]).toBeUndefined()
-    expect(TestEngine.disposedKeys).toEqual([key])
+    expect(TestEngine.disposed[key]).toEqual({
+      descriptor: {
+        md5: 'f688ae26e9cfa3ba6235477831d5122e',
+        data: subject
+      },
+      instance: storage
+    })
 
     let error: Error
 
