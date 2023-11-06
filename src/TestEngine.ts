@@ -45,7 +45,8 @@ export default class TestEngine implements EngineInterface {
   }
 
   public dispose(key: string): void {
-    if (TestEngine.storage[key]) TestEngine.disposed[key] = TestEngine.storage[key]
+    if (!TestEngine.storage[key]) throw new Error('Key does not exist')
+    TestEngine.disposed[key] = TestEngine.storage[key]
     delete TestEngine.storage[key]
   }
 

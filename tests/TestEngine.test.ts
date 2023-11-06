@@ -55,6 +55,14 @@ describe(TestEngine, (): void => {
     }
 
     expect(error.message).toMatch(/".*" does not exist/)
+
+    try {
+      await storage.dispose(key)
+    } catch (err) {
+      error = err
+    }
+
+    expect(error.message).toEqual('Key does not exist')
   })
 
   it('stores images versions', async (): Promise<void> => {
