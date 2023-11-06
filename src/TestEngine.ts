@@ -17,6 +17,7 @@ interface TestEngineOptions {
 }
 export default class TestEngine implements EngineInterface {
   public static readonly storage: TestEngineStorage = {}
+  public static readonly disposedKeys: string[] = []
 
   public readonly instance: Storage
 
@@ -44,6 +45,7 @@ export default class TestEngine implements EngineInterface {
   }
 
   public dispose(key: string): void {
+    if (TestEngine.storage[key]) TestEngine.disposedKeys.push(key)
     delete TestEngine.storage[key]
   }
 

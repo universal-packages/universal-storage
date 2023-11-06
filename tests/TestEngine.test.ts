@@ -37,6 +37,9 @@ describe(TestEngine, (): void => {
 
     await storage.dispose(key)
 
+    expect(TestEngine.storage[key]).toBeUndefined()
+    expect(TestEngine.disposedKeys).toEqual([key])
+
     let error: Error
 
     try {
