@@ -1,6 +1,4 @@
 import { Measurement } from '@universal-packages/time-measurer'
-import fs from 'fs'
-import sharp from 'sharp'
 
 import { EngineInterface, LocalEngine, Storage } from '../src'
 
@@ -20,7 +18,7 @@ describe(Storage, (): void => {
     const storage = new Storage({ engine: mockEngine })
     const listener = jest.fn()
 
-    storage.on('*', listener)
+    storage.on('*:*', listener)
 
     const key = await storage.store({ data: Buffer.from('Hola') })
     await storage.prepare()
@@ -38,14 +36,14 @@ describe(Storage, (): void => {
     expect(mockEngine.retrieveUri).toHaveBeenCalledWith(key, undefined)
     expect(mockEngine.release).toHaveBeenCalled()
     expect(listener.mock.calls).toEqual([
-      [{ event: 'store:start', key, descriptor: { data: Buffer.from('Hola') }, engine: 'Object' }],
-      [{ event: 'store:finish', key, descriptor: { data: Buffer.from('Hola') }, engine: 'Object', measurement: expect.any(Measurement) }],
-      [{ event: 'retrieve:start', key, engine: 'Object' }],
-      [{ event: 'retrieve:finish', key, engine: 'Object', measurement: expect.any(Measurement) }],
-      [{ event: 'retrieve-stream:start', key, engine: 'Object' }],
-      [{ event: 'retrieve-stream:finish', key, engine: 'Object', measurement: expect.any(Measurement) }],
-      [{ event: 'retrieve-uri:start', key, engine: 'Object' }],
-      [{ event: 'retrieve-uri:finish', key, engine: 'Object', measurement: expect.any(Measurement) }]
+      [{ event: 'store:start', payload: { key, descriptor: { data: Buffer.from('Hola') }, engine: 'Object' } }],
+      [{ event: 'store:finish', measurement: expect.any(Measurement), payload: { key, descriptor: { data: Buffer.from('Hola') }, engine: 'Object' } }],
+      [{ event: 'retrieve:start', payload: { key, engine: 'Object' } }],
+      [{ event: 'retrieve:finish', measurement: expect.any(Measurement), payload: { key, engine: 'Object' } }],
+      [{ event: 'retrieve-stream:start', payload: { key, engine: 'Object' } }],
+      [{ event: 'retrieve-stream:finish', measurement: expect.any(Measurement), payload: { key, engine: 'Object' } }],
+      [{ event: 'retrieve-uri:start', payload: { key, engine: 'Object' } }],
+      [{ event: 'retrieve-uri:finish', measurement: expect.any(Measurement), payload: { key, engine: 'Object' } }]
     ])
   })
 
