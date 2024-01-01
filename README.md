@@ -203,7 +203,7 @@ const storage = new Storage({ engine: new MyEngine() })
 ```
 
 ```js
-export default class MyEngine implements EngineInterface {
+export default class MyEngine {
   constructor(options) {
     // Options passed through the adapters sub system
   }
