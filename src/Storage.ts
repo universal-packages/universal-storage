@@ -79,7 +79,7 @@ export default class Storage extends EventEmitter {
   public async storeVersion<O = Record<string, any>>(key: string, descriptor: VersionBlobDescriptor, engineOptions?: O): Promise<void> {
     const measurer = startMeasurement()
 
-    this.emit('store-version:start', { payload: { key, engine: this.engine.constructor.name } })
+    this.emit('store-version:start', { payload: { key, engine: this.engine.constructor.name, descriptor } })
 
     const originalBuffer = await this.engine.retrieve(key)
     const resized = await sharp(originalBuffer).resize(descriptor).toBuffer()
@@ -87,7 +87,7 @@ export default class Storage extends EventEmitter {
 
     await this.engine.store(versionKey, { ...descriptor, data: resized }, engineOptions)
 
-    this.emit('store-version:finish', { measurement: measurer.finish(), payload: { key, engine: this.engine.constructor.name } })
+    this.emit('store-version:finish', { measurement: measurer.finish(), payload: { key, engine: this.engine.constructor.name, descriptor } })
   }
 
   public async retrieve(key: string): Promise<Buffer> {
@@ -130,12 +130,12 @@ export default class Storage extends EventEmitter {
   public async retrieveVersionStream<S = any>(key: string, descriptor: VersionBlobDescriptor): Promise<S> {
     const measurer = startMeasurement()
 
-    this.emit('retrieve-stream:start', { payload: { key, descriptor, engine: this.engine.constructor.name } })
+    this.emit('retrieve-version-stream:start', { payload: { key, descriptor, engine: this.engine.constructor.name } })
 
     const versionKey = Storage.generateVersionKey(key, descriptor)
     const stream = await this.engine.retrieveStream(versionKey)
 
-    this.emit('retrieve-stream:finish', { measurement: measurer.finish(), payload: { key, descriptor, engine: this.engine.constructor.name } })
+    this.emit('retrieve-version-stream:finish', { measurement: measurer.finish(), payload: { key, descriptor, engine: this.engine.constructor.name } })
 
     return stream
   }
