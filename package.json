@@ -20,7 +20,7 @@
     "@universal-packages/crypto-utils": "^1.1.4",
     "@universal-packages/event-emitter": "^1.1.5",
     "@universal-packages/fs-utils": "^1.1.1",
-    "@universal-packages/time-measurer": "^1.4.10",
+    "@universal-packages/time-measurer": "^1.5.0",
     "sharp": "^0.32.6"
   },
   "devDependencies": {
