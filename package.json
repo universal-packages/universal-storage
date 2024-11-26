@@ -18,7 +18,7 @@
   "dependencies": {
     "@universal-packages/adapter-resolver": "^1.5.5",
     "@universal-packages/crypto-utils": "^1.1.4",
-    "@universal-packages/event-emitter": "^1.1.5",
+    "@universal-packages/event-emitter": "^1.1.6",
     "@universal-packages/fs-utils": "^1.1.1",
     "@universal-packages/time-measurer": "^1.5.0",
     "sharp": "^0.32.6"
