@@ -14,7 +14,7 @@ export default class LocalEngine implements EngineInterface {
 
   public store<O = Record<string, any>>(key: string, descriptor: BlobDescriptor, _options?: O): void {
     ensureDirectory(this.getDirectoryPath(key))
-    fs.writeFileSync(this.getFilePath(key), descriptor.data)
+    fs.writeFileSync(this.getFilePath(key), new Uint8Array(descriptor.data))
   }
 
   public retrieve(key: string): Buffer {

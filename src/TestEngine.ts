@@ -27,7 +27,7 @@ export default class TestEngine implements EngineInterface {
 
   public store<O = Record<string, any>>(key: string, descriptor: BlobDescriptor, options?: O): void {
     const finalDescriptor = { ...descriptor }
-    if (!descriptor.md5) finalDescriptor.md5 = crypto.createHash('md5').update(descriptor.data).digest('hex')
+    if (!descriptor.md5) finalDescriptor.md5 = crypto.createHash('md5').update(new Uint8Array(descriptor.data)).digest('hex')
     TestEngine.storage[key] = { descriptor: finalDescriptor, instance: this.instance, options }
   }
 
