@@ -82,7 +82,7 @@ export default class Storage extends EventEmitter {
     this.emit('store-version:start', { payload: { key, engine: this.engine.constructor.name, descriptor } })
 
     const originalBuffer = await this.engine.retrieve(key)
-    const resized = await sharp(originalBuffer).resize(descriptor).toBuffer()
+    const resized = await sharp(originalBuffer).rotate().resize(descriptor).toBuffer()
     const versionKey = Storage.generateVersionKey(key, descriptor)
 
     await this.engine.store(versionKey, { ...descriptor, data: resized }, engineOptions)
