@@ -19,7 +19,12 @@ jobs:
           path: '**/node_modules'
           key: ${{ runner.os }}-modules-${{ hashFiles('**/package-lock.json') }}
 
-      - run: npm install
+      - name: Install libvips
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libvips-dev
+
+      - run: npm install --foreground-scripts
       - run: npm run test:coverage
       - run: npm run build
 

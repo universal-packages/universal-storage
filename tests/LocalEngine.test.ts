@@ -91,4 +91,19 @@ describe(LocalEngine, (): void => {
 
     expect(error.message).toMatch(/".*" does not exist/)
   })
+
+  it('handle HEIC files and its versions', async (): Promise<void> => {
+    const storage = new Storage({ engine: 'local', engineOptions: { location: './tmp' } })
+
+    const subject = fs.readFileSync('./tests/__fixtures__/test.heic')
+
+    const key = await storage.store({ data: subject })
+
+    await storage.storeVersion(key, { width: 64, fit: 'cover' })
+    await storage.storeVersion(key, { width: 32 })
+
+    const versionUri = await storage.retrieveVersionUri(key, { width: 64, fit: 'cover' })
+
+    expect(versionUri).toMatch(/.*\/v-64x~-cover/)
+  })
 })

@@ -21,7 +21,9 @@
     "@universal-packages/event-emitter": "^1.2.1",
     "@universal-packages/fs-utils": "^1.2.0",
     "@universal-packages/time-measurer": "^1.6.0",
-    "sharp": "^0.32.6"
+    "node-addon-api": "^8.3.1",
+    "node-gyp": "^11.2.0",
+    "sharp": "^0.34.0"
   },
   "devDependencies": {
     "@trivago/prettier-plugin-sort-imports": "^4.3.0",
